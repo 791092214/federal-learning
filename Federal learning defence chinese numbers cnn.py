@@ -100,8 +100,8 @@ def train_and_test_1(train_loader, test_loader):
             x = self.fc3(x)
             return x
 
-    epoches = 20  # 迭代20轮
-    lr = 0.01  # 学习率，即步长
+    epoches = 20  
+    lr = 0.01  # learning rate
     input_num = 1024
     hidden_num = 600
     output_num = 10
@@ -109,8 +109,8 @@ def train_and_test_1(train_loader, test_loader):
 
     model = NeuralNet(input_num, hidden_num, output_num)
     model.to(device)
-    loss_func = nn.CrossEntropyLoss()  # 损失函数的类型：交叉熵损失函数
-    optimizer = optim.Adam(model.parameters(), lr=lr)  # Adam优化，也可以用SGD随机梯度下降法
+    loss_func = nn.CrossEntropyLoss() # loss function
+    optimizer = optim.Adam(model.parameters(), lr=lr)  # Adam, optimizer
     # optimizer = optim.SGD(model.parameters(), lr=lr)
     for epoch in range(epoches):
         flag = 0
@@ -126,17 +126,16 @@ def train_and_test_1(train_loader, test_loader):
 
             loss = loss_func(output, labels)
             optimizer.zero_grad()
-            loss.backward()  # 误差反向传播，计算参数更新值
-            optimizer.step()  # 将参数更新值施加到net的parameters上
+            loss.backward()  
+            optimizer.step()
 
-            # 以下两步可以看每轮损失函数具体的变化情况
+            
             # if (flag + 1) % 10 == 0:
             # print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch + 1, epoches, loss.item()))
             flag += 1
 
-    params = list(model.named_parameters())  # 获取模型参数
-
-    # 测试，评估准确率
+    params = list(model.named_parameters())  # get model parameters
+    # test and get accuracy
     correct = 0
     total = 0
     for images, labels in test_loader:
@@ -148,9 +147,9 @@ def train_and_test_1(train_loader, test_loader):
         images = images / 255
 
         output = model(images)
-        values, predicte = torch.max(output, 1)  # 0是每列的最大值，1是每行的最大值
+        values, predicte = torch.max(output, 1)
         total += labels.size(0)
-        # predicte == labels 返回每张图片的布尔类型
+        # predicte == labels
         correct += (predicte == labels).sum().item()
     print("The accuracy of total {} images: {}%".format(total, 100 * correct / total))
     return params
@@ -282,7 +281,7 @@ if __name__ == "__main__":
     para_A=train_and_test_1(train_loader_A,test_loader)
     para_B=train_and_test_1(train_loader_B,test_loader)
     para_C=train_and_test_1(train_loader_C,test_loader)
-    for i in range(3): # 这个后面再改。。。
+    for i in range(3):
         print("The {} round to be federated!!!".format(i+1))
         com_para_conv1,com_para_conv2,com_para_fc1, com_para_fc2,com_para_fc3 = combine_params(para_A, para_B, para_C)
         para_A=train_and_test_2(train_loader_A,test_loader,com_para_conv1,com_para_conv2,com_para_fc1, com_para_fc2, com_para_fc3)
